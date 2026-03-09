@@ -18,8 +18,8 @@ brew bundle install
 
 
 # setup github username and email
-# git config --global --add user.email "107491133+pradeep1402@users.noreply.github.com"
-# git config --global --add user.name "Pradeep"
+ git config --global --add user.email "pb63827@gmail.com"
+ git config --global --add user.name "Pradeep"
 
 
 # Setup zsh syntax hightlighting
