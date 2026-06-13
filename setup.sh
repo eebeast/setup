@@ -28,11 +28,8 @@ else
     echo "✅ Oh My Zsh already installed"
 fi
 
-# Reload shell configuration
+# Note: Shell reload skipped (manual reload needed after installation)
 echo ""
-echo "🔄 Reloading shell configuration..."
-[ -f "$HOME/.zshrc" ] && source "$HOME/.zshrc" 2>/dev/null || true
-[ -f "$HOME/.zprofile" ] && source "$HOME/.zprofile" 2>/dev/null || true
 
 # Install tools from Brewfile
 echo ""
@@ -44,7 +41,7 @@ BREWFILE="$TMPDIR/Brewfile.$$"
 
 if curl -fsSL https://raw.githubusercontent.com/eebeast/setup/main/Brewfile -o "$BREWFILE"; then
     cd "$TMPDIR" || exit 1
-    brew bundle install --file="$BREWFILE" --no-lock || echo "⚠️  Some packages failed to install"
+    brew bundle install --file="$BREWFILE" 2>&1 | grep -v "^Using" || true
     rm -f "$BREWFILE"
     echo "✅ Tools installed"
 else
