@@ -35,7 +35,7 @@ BREWFILE="$TMPDIR/Brewfile.$$"
 
 if curl -fsSL https://raw.githubusercontent.com/eebeast/setup/main/Brewfile -o "$BREWFILE"; then
     cd "$TMPDIR" || exit 1
-    brew bundle install --file="$BREWFILE" 2>&1
+    brew bundle install --file="$BREWFILE" --verbose 2>&1
     INSTALL_STATUS=$?
     rm -f "$BREWFILE"
 
@@ -69,7 +69,9 @@ fi
 
 # Configure Zsh
 echo ""
-echo "Configuring Zsh..."
+echo "Configuring Zsh and tool paths..."
+
+# Add shell plugins
 if ! grep -q "zsh-syntax-highlighting.zsh" ~/.zshrc 2>/dev/null; then
     {
         echo 'source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh'
@@ -77,7 +79,41 @@ if ! grep -q "zsh-syntax-highlighting.zsh" ~/.zshrc 2>/dev/null; then
     } >> ~/.zshrc
 fi
 
-echo "Zsh configured"
+# Configure Java
+if ! grep -q "JAVA_HOME" ~/.zshrc 2>/dev/null; then
+    {
+        echo ''
+        echo '# Java Configuration'
+        echo 'export JAVA_HOME=$(/opt/homebrew/bin/java_home -v 21)'
+        echo 'export PATH=$JAVA_HOME/bin:$PATH'
+    } >> ~/.zshrc
+fi
+
+# Configure Go
+if ! grep -q "GOPATH" ~/.zshrc 2>/dev/null; then
+    {
+        echo ''
+        echo '# Go Configuration'
+        echo 'export GOPATH=$HOME/go'
+        echo 'export PATH=$GOPATH/bin:$PATH'
+    } >> ~/.zshrc
+fi
+
+# Configure Python alias
+if ! grep -q "alias python=" ~/.zshrc 2>/dev/null; then
+    {
+        echo ''
+        echo '# Python Configuration'
+        echo 'alias python=python3'
+        echo 'alias pip=pip3'
+    } >> ~/.zshrc
+fi
+
+echo "Zsh configured with:"
+echo "  - Java 21 (JAVA_HOME, PATH)"
+echo "  - Go (GOPATH, PATH)"
+echo "  - Python aliases (python -> python3, pip -> pip3)"
+echo "  - Syntax highlighting and auto-suggestions"
 
 echo ""
 echo "==========================================="
