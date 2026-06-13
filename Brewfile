@@ -22,4 +22,4 @@ cask "visual-studio-code"
 cask "insomnia"
 cask "rectangle"
 cask "kitty"
-
+cask "maccy"
