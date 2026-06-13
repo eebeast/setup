@@ -37,15 +37,20 @@ echo "🔄 Reloading shell configuration..."
 # Install tools from Brewfile
 echo ""
 echo "📥 Installing development tools..."
-if ! curl -fsSL https://raw.githubusercontent.com/eebeast/setup/main/Brewfile -o Brewfile 2>/dev/null; then
-    if [ ! -f "Brewfile" ]; then
-        echo "❌ Brewfile not found"
-        exit 1
-    fi
-fi
 
-brew bundle install --no-lock || echo "⚠️  Some packages failed to install"
-echo "✅ Tools installed"
+# Create temp directory for Brewfile
+TMPDIR=${TMPDIR:-/tmp}
+BREWFILE="$TMPDIR/Brewfile.$$"
+
+if curl -fsSL https://raw.githubusercontent.com/eebeast/setup/main/Brewfile -o "$BREWFILE"; then
+    cd "$TMPDIR" || exit 1
+    brew bundle install --file="$BREWFILE" --no-lock || echo "⚠️  Some packages failed to install"
+    rm -f "$BREWFILE"
+    echo "✅ Tools installed"
+else
+    echo "❌ Failed to download Brewfile"
+    exit 1
+fi
 
 # Configure Git
 echo ""
@@ -53,19 +58,14 @@ echo "⚙️  Configuring Git..."
 GIT_EMAIL="${1:-}"
 GIT_NAME="${2:-}"
 
-if [ -z "$GIT_EMAIL" ] || [ -z "$GIT_NAME" ]; then
-    if [ -t 0 ]; then
-        read -p "Git email: " GIT_EMAIL
-        read -p "Git name: " GIT_NAME
-    fi
-fi
-
-if [ -n "$GIT_EMAIL" ] && [ -n "$GIT_NAME" ]; then
+if [ -z "$GIT_EMAIL" ]; then
+    echo "⚠️  Git email not provided (pass as first argument)"
+elif [ -z "$GIT_NAME" ]; then
+    echo "⚠️  Git name not provided (pass as second argument)"
+else
     git config --global user.email "$GIT_EMAIL"
     git config --global user.name "$GIT_NAME"
-    echo "✅ Git configured"
-else
-    echo "⚠️  Skipped git configuration (configure manually later)"
+    echo "✅ Git configured: $GIT_NAME <$GIT_EMAIL>"
 fi
 
 # Configure Zsh
