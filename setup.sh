@@ -6,43 +6,27 @@ LOG_FILE="$HOME/.macOS-setup.log"
 exec > >(tee -a "$LOG_FILE")
 exec 2>&1
 
-echo "==========================================="
-echo "   macOS Developer Environment Setup"
-echo "==========================================="
-echo ""
-echo "📝 Log file: $LOG_FILE"
-echo "⏰ Started at $(date)"
-echo ""
-
 # Install Homebrew
-echo "📦 Installing Homebrew..."
 if ! command -v brew &> /dev/null; then
+    echo "Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     echo >> ~/.zprofile
     echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
     eval "$(/opt/homebrew/bin/brew shellenv)"
-    echo "✅ Homebrew installed"
 else
-    echo "✅ Homebrew already installed"
+    echo "Homebrew already installed"
 fi
 
 # Install Oh My Zsh
-echo ""
-echo "🐚 Installing Oh My Zsh..."
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    echo "Installing Oh My Zsh..."
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-    echo "✅ Oh My Zsh installed"
 else
-    echo "✅ Oh My Zsh already installed"
+    echo "Oh My Zsh already installed"
 fi
 
-# Note: Shell reload skipped (manual reload needed after installation)
 echo ""
-
-# Install tools from Brewfile
-echo ""
-echo "📥 Installing development tools..."
-echo "   This may take several minutes..."
+echo "Installing development tools..."
 echo ""
 
 # Create temp directory for Brewfile
@@ -51,48 +35,41 @@ BREWFILE="$TMPDIR/Brewfile.$$"
 
 if curl -fsSL https://raw.githubusercontent.com/eebeast/setup/main/Brewfile -o "$BREWFILE"; then
     cd "$TMPDIR" || exit 1
-
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "Installation Log:"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-    brew bundle install --file="$BREWFILE" 2>&1 | tee -a "$LOG_FILE"
+    brew bundle install --file="$BREWFILE" 2>&1
     INSTALL_STATUS=$?
-
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
-
     rm -f "$BREWFILE"
 
     if [ $INSTALL_STATUS -eq 0 ]; then
-        echo "✅ All tools installed successfully"
+        echo ""
+        echo "All tools installed successfully"
     else
-        echo "⚠️  Some tools may have failed (see log above)"
+        echo ""
+        echo "Some tools may have failed (check log above)"
     fi
 else
-    echo "❌ Failed to download Brewfile"
+    echo "Failed to download Brewfile"
     exit 1
 fi
 
 # Configure Git
 echo ""
-echo "⚙️  Configuring Git..."
+echo "Configuring Git..."
 GIT_EMAIL="${1:-}"
 GIT_NAME="${2:-}"
 
 if [ -z "$GIT_EMAIL" ]; then
-    echo "⚠️  Git email not provided (pass as first argument)"
+    echo "Git email not provided (pass as first argument)"
 elif [ -z "$GIT_NAME" ]; then
-    echo "⚠️  Git name not provided (pass as second argument)"
+    echo "Git name not provided (pass as second argument)"
 else
     git config --global user.email "$GIT_EMAIL"
     git config --global user.name "$GIT_NAME"
-    echo "✅ Git configured: $GIT_NAME <$GIT_EMAIL>"
+    echo "Git configured: $GIT_NAME <$GIT_EMAIL>"
 fi
 
 # Configure Zsh
 echo ""
-echo "🎨 Configuring Zsh..."
+echo "Configuring Zsh..."
 if ! grep -q "zsh-syntax-highlighting.zsh" ~/.zshrc 2>/dev/null; then
     {
         echo 'source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh'
@@ -100,19 +77,16 @@ if ! grep -q "zsh-syntax-highlighting.zsh" ~/.zshrc 2>/dev/null; then
     } >> ~/.zshrc
 fi
 
-echo "✅ Zsh configured"
+echo "Zsh configured"
 
 echo ""
 echo "==========================================="
-echo "   ✨ Setup Complete!"
+echo "Setup Complete!"
 echo "==========================================="
 echo ""
-echo "⏰ Completed at $(date)"
-echo "📝 Installation log saved to: $LOG_FILE"
+echo "Log saved to: $LOG_FILE"
 echo ""
 echo "Next steps:"
 echo "  1. Restart your terminal or: source ~/.zshrc"
-echo "  2. Configure SSH for GitHub if needed"
-echo "  3. Review log: cat $LOG_FILE"
+echo "  2. Configure SSH for GitHub"
 echo ""
-echo "Happy coding! 🚀"
