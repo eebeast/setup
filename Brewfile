@@ -1,32 +1,25 @@
 # Version Control
 brew "git"
-brew "git-gui"
+
+# Programming Languages & Runtimes
+brew "node"
+brew "python@3.12"
+brew "openjdk@21"
+brew "go"
+
+# Development Tools
+brew "docker"
 
 # CLI Utilities
 brew "bat"
 brew "tree"
+brew "curl"
 brew "zsh-syntax-highlighting"
 brew "zsh-autosuggestions"
-brew "jump"
-brew "tokei"
 
-# Programming Languages
-brew "node"
-brew "python@3.11"
-brew "java@21"
-brew "deno"
-
-
-# Development Tools
-brew "docker"
-brew "curl"
-
-# Terminal & Shell
-cask "kitty"
-
-cask "rectangle"
-
-# Editors & IDEs
+# Applications
 cask "visual-studio-code"
 cask "insomnia"
+cask "rectangle"
+cask "kitty"
 
