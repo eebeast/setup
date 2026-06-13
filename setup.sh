@@ -1,9 +1,17 @@
 #!/bin/bash
 set -u
 
+# Setup logging
+LOG_FILE="$HOME/.macOS-setup.log"
+exec > >(tee -a "$LOG_FILE")
+exec 2>&1
+
 echo "==========================================="
 echo "   macOS Developer Environment Setup"
 echo "==========================================="
+echo ""
+echo "📝 Log file: $LOG_FILE"
+echo "⏰ Started at $(date)"
 echo ""
 
 # Install Homebrew
@@ -34,6 +42,8 @@ echo ""
 # Install tools from Brewfile
 echo ""
 echo "📥 Installing development tools..."
+echo "   This may take several minutes..."
+echo ""
 
 # Create temp directory for Brewfile
 TMPDIR=${TMPDIR:-/tmp}
@@ -41,9 +51,24 @@ BREWFILE="$TMPDIR/Brewfile.$$"
 
 if curl -fsSL https://raw.githubusercontent.com/eebeast/setup/main/Brewfile -o "$BREWFILE"; then
     cd "$TMPDIR" || exit 1
-    brew bundle install --file="$BREWFILE" 2>&1 | grep -v "^Using" || true
+
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "Installation Log:"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+    brew bundle install --file="$BREWFILE" 2>&1 | tee -a "$LOG_FILE"
+    INSTALL_STATUS=$?
+
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+
     rm -f "$BREWFILE"
-    echo "✅ Tools installed"
+
+    if [ $INSTALL_STATUS -eq 0 ]; then
+        echo "✅ All tools installed successfully"
+    else
+        echo "⚠️  Some tools may have failed (see log above)"
+    fi
 else
     echo "❌ Failed to download Brewfile"
     exit 1
@@ -82,8 +107,12 @@ echo "==========================================="
 echo "   ✨ Setup Complete!"
 echo "==========================================="
 echo ""
+echo "⏰ Completed at $(date)"
+echo "📝 Installation log saved to: $LOG_FILE"
+echo ""
 echo "Next steps:"
 echo "  1. Restart your terminal or: source ~/.zshrc"
 echo "  2. Configure SSH for GitHub if needed"
+echo "  3. Review log: cat $LOG_FILE"
 echo ""
 echo "Happy coding! 🚀"
